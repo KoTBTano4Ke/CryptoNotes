@@ -124,12 +124,9 @@ class EncryptedNotesApp:
         if not note:
             return
 
-        method = simpledialog.askstring(
-            "Add Note", 
-            "Enter encryption method (caesar/rsa/base64/reverse/xor/fernet/atbash):"
-        )
-        if method not in ["caesar", "rsa", "base64", "reverse", "xor", "fernet", "atbash"]:
-            messagebox.showerror("Error", "Invalid encryption method.")
+        method = self.select_encryption_method()
+        if not method:
+            messagebox.showerror("Error", "No encryption method selected.")
             return
 
         password = simpledialog.askstring("Add Note", "Enter password:")
@@ -155,6 +152,24 @@ class EncryptedNotesApp:
         self.notes[title] = (encrypted_note, method, password)
         self.notes_listbox.insert(tk.END, title)
         messagebox.showinfo("Success", "Note added and encrypted successfully!")
+
+    def select_encryption_method(self):
+        method_window = tk.Toplevel(self.master)
+        method_window.title("Select Encryption Method")
+
+        methods = ["caesar", "rsa", "base64", "reverse", "xor", "fernet", "atbash"]
+        selected_method = tk.StringVar()
+
+        def select_method(method):
+            selected_method.set(method)
+            method_window.destroy()
+
+        for method in methods:
+            button = tk.Button(method_window, text=method.capitalize(), command=lambda m=method: select_method(m))
+            button.pack(pady=5)
+
+        self.master.wait_window(method_window)
+        return selected_method.get()
 
     def view_encrypted_note(self):
         selected = self.notes_listbox.curselection()
